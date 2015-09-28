@@ -20,18 +20,48 @@ AUTHORIZED_KEYS="$HOME/.ssh/authorized_keys"
 
 
 
-
-
-# custom authorized key file passed 
+# custom authorized key file passed
 if [ -n "$1" ]; then
-	AUTHORIZED_KEYS=$1
+	if [ $1 != '--force' ]; then
+	        AUTHORIZED_KEYS=$1
+	fi
+
+	if [ -n "$2" ]; then
+		AUTHORIZED_KEYS=$2
+	fi	
 fi
 
 
 
-printf "Using: $AUTHORIZED_KEYS\n"
+# process parameters
+case "$1" in
+	'--help')
+		printf "./ssh-key-add.sh --force <path/to/authorized_keys>\n\n"
+		printf "\t--force\tremove authorized_keys file befirst\n\n"
+		exit 1
+	        ;;
+
+	'--force')
+		printf "Using: $AUTHORIZED_KEYS\n"
+		RET=`echo "" > $AUTHORIZED_KEYS 2>&1`
+		if [ $? -eq 0 ]; then
+			printf "File cleared\n"
+		else
+			printf "ERROR: clearing file: $RET\n\n"
+			exit 1
+		fi
+                ;;
+
+	*)
+		printf "Using: $AUTHORIZED_KEYS\n"
+		;;
+esac
+
+
+
+
 # create backup
-if [ -f "$AUTHORIZED_KEYS" ]; then
+if [ $1 != '--force' ] && [ -f "$AUTHORIZED_KEYS" ]; then
 	KEY_BACK=$AUTHORIZED_KEYS".deploy"
 	cp "$AUTHORIZED_KEYS" "$KEY_BACK"
 	printf "Backup: $KEY_BACK\n"
