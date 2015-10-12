@@ -36,18 +36,24 @@ fi
 # process parameters
 case "$1" in
 	'--help')
-		printf "./ssh-key-add.sh --force <path/to/authorized_keys>\n\n"
-		printf "\t--force\tremove authorized_keys file befirst\n\n"
+		printf "\n./ssh-key-add.sh\t\t deploy keys to current account\n"
+		printf "./ssh-key-add.sh --force\t delete authorized_key file first\n"
+		printf "./ssh-key-add.sh --force <path/to/authorized_keys>\t custom file\n\n"
 		exit 1
 	        ;;
 
 	'--force')
 		printf "Using: $AUTHORIZED_KEYS\n"
-		RET=`echo "" > $AUTHORIZED_KEYS 2>&1`
-		if [ $? -eq 0 ]; then
-			printf "File cleared\n"
-		else
+		RET=`rm $AUTHORIZED_KEYS 2>&1`
+		if [ $? -ne 0 ]; then
 			printf "ERROR: clearing file: $RET\n\n"
+			exit 1
+		fi
+		RET=`touch $AUTHORIZED_KEYS 2>&1`
+		if [ $? -eq 0 ]; then
+			printf "File cleard due to --force\n"
+		else
+			printf "ERROR: creating empty file: $RET\n\n"
 			exit 1
 		fi
                 ;;
@@ -74,7 +80,7 @@ do
 
 	CONTENT=`cat $FOUND`
 
-	grep "$CONTENT" "$AUTHORIZED_KEYS" 2&>1 /dev/null
+	grep "$CONTENT" "$AUTHORIZED_KEYS" &> /dev/null
 	if [ $? -ne 0 ]; then
 		#key not in authorized key file, add it
 		cat "$FOUND" 2> /dev/null >> "$AUTHORIZED_KEYS"
@@ -95,7 +101,7 @@ do
 
         CONTENT=`cat $FOUND`
         RET=`grep -n "$CONTENT" "$AUTHORIZED_KEYS" 2> /dev/null`
-	item_src=`echo "$RET" |  awk -F":" '{print $1}'`
+		item_src=`echo "$RET" |  awk -F":" '{print $1}'`
 
         if [ $? -eq 0 ]; then
 
