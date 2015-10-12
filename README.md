@@ -21,8 +21,14 @@ License: New BSD License
 Examples
 ========
 
+Show command examples ... pretty much what you see here
+* ./ssh-key-deploy.sh --help
+
 Update authorized_keys of the current user
 * ./ssh-key-deploy.sh
+
+Delete authorized_key first, then update authorized_keys of the current user
+* ./ssh-key-deploy.sh --force
     
 Update specific file
 * ./ssh-key-deploy.sh /home/foo/authorized_key
