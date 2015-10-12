@@ -22,7 +22,7 @@ AUTHORIZED_KEYS="$HOME/.ssh/authorized_keys"
 
 # custom authorized key file passed
 if [ -n "$1" ]; then
-	if [ $1 != '--force' ]; then
+	if [ "$1" != '--force' ]; then
 	        AUTHORIZED_KEYS=$1
 	fi
 
