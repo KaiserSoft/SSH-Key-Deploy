@@ -61,7 +61,7 @@ esac
 
 
 # create backup
-if [ $1 != '--force' ] && [ -f "$AUTHORIZED_KEYS" ]; then
+if [ "$1" != '--force' ] && [ -f "$AUTHORIZED_KEYS" ]; then
 	KEY_BACK=$AUTHORIZED_KEYS".deploy"
 	cp "$AUTHORIZED_KEYS" "$KEY_BACK"
 	printf "Backup: $KEY_BACK\n"
@@ -69,7 +69,7 @@ fi
 
 
 # process keys to be added
-find ./active/  -type f -maxdepth 1 -name "*.pub" | while read FOUND 
+find ./active/ -maxdepth 1  -type f -name "*.pub" | while read FOUND 
 do
 
 	CONTENT=`cat $FOUND`
@@ -90,7 +90,7 @@ done
 
 
 # process key removal 
-find ./remove/  -type f -maxdepth 1 -name "*.pub" | while read FOUND
+find ./remove/ -maxdepth 1 -type f -name "*.pub" | while read FOUND
 do
 
         CONTENT=`cat $FOUND`
