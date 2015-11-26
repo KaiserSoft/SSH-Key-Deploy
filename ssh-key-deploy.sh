@@ -17,6 +17,19 @@
 
 
 AUTHORIZED_KEYS="$HOME/.ssh/authorized_keys"
+SSH_PATH="$HOME/.ssh"
+
+# ensure the required directory exists
+if [ ! -d "$SSH_PATH" ]; then
+	mkdir "$SSH_PATH"
+	chmod 0700 "$SSH_PATH"
+fi
+
+# ensure that authorized_keys exists
+if [ ! -f "$AUTHORIZED_KEYS" ]; then
+        touch "$AUTHORIZED_KEYS"
+        chmod 0600 "$AUTHORIZED_KEYS"
+fi
 
 
 
