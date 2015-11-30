@@ -13,27 +13,12 @@
 # License: New BSD License
 #
 # Example for current user: ./ssh-key-deploy.sh
-# Example with custom key file: ./ssh-key-deploy.sh /home/foo/authorized_key
+# Example with custom keys file: ./ssh-key-deploy.sh /home/foo/authorized_key
 
 
 AUTHORIZED_KEYS="$HOME/.ssh/authorized_keys"
-SSH_PATH="$HOME/.ssh"
 
-# ensure the required directory exists
-if [ ! -d "$SSH_PATH" ]; then
-	mkdir "$SSH_PATH"
-	chmod 0700 "$SSH_PATH"
-fi
-
-# ensure that authorized_keys exists
-if [ ! -f "$AUTHORIZED_KEYS" ]; then
-        touch "$AUTHORIZED_KEYS"
-        chmod 0600 "$AUTHORIZED_KEYS"
-fi
-
-
-
-# custom authorized key file passed
+# custom authorized keys file passed
 if [ -n "$1" ]; then
 	if [ "$1" != '--force' ]; then
 	        AUTHORIZED_KEYS=$1
@@ -44,6 +29,32 @@ if [ -n "$1" ]; then
 	fi	
 fi
 
+
+# determine path as it may be passed to the script 
+AUTH_LEN=`printf "authorized_keys" | wc -m`
+STR_LEN=`printf "$AUTHORIZED_KEYS" | wc -m`
+let "STR_CUT=$STR_LEN - $AUTH_LEN"
+STR_PATH=`printf "$AUTHORIZED_KEYS" | cut -c-$STR_CUT`
+
+# ensure the required directory exists
+if [ ! -d "$STR_PATH" ]; then
+        mkdir "$STR_PATH"
+	if [ $? -ne 0 ]; then
+		printf "ERROR: unable to create $STR_PATH\n"
+		exit 99
+	fi
+        chmod 0700 "$STR_PATH"
+fi
+
+# ensure that authorized_keys exists
+if [ ! -f "$AUTHORIZED_KEYS" ]; then
+        touch "$AUTHORIZED_KEYS"
+	if [ $? -ne 0 ]; then
+		printf "ERROR: unable to create $AUTHORIZED_KEYS\n"
+		exit 99
+	fi
+        chmod 0600 "$AUTHORIZED_KEYS"
+fi
 
 
 # process parameters
