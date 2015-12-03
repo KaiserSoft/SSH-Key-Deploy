@@ -26,12 +26,14 @@ if [ -n "$1" ]; then
 
 	if [ -n "$2" ]; then
 		AUTHORIZED_KEYS=$2
-	fi	
+	fi
+
+	printf "Custom authorized_keys file used. Please double check user permissions\n"
 fi
 
 
 # determine path as it may be passed to the script 
-AUTH_LEN=`printf "authorized_keys" | wc -m`
+AUTH_LEN=`printf "$AUTHORIZED_KEYS" |  awk -F"/" '{ print $NF }' | wc -m`
 STR_LEN=`printf "$AUTHORIZED_KEYS" | wc -m`
 let "STR_CUT=$STR_LEN - $AUTH_LEN"
 STR_PATH=`printf "$AUTHORIZED_KEYS" | cut -c-$STR_CUT`
