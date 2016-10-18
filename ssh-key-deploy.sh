@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# script to simplify mangement of the authorized_keys file
+# script to simplify management of the authorized_keys file
 # * copy any .pub files which should be included into ./active/
 # * copy any .pub files which should be removed into ./remove/
 #
