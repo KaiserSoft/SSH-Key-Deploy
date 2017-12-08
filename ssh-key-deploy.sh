@@ -106,16 +106,21 @@ do
 
 	CONTENT=`cat $FOUND`
 
-	grep "$CONTENT" "$AUTHORIZED_KEYS" &> /dev/null
-	if [ $? -ne 0 ]; then
+	GREPRES=$(grep -c "$CONTENT" "$AUTHORIZED_KEYS")
+	if [ $GREPRES -eq 0 ]; then
 		#key not in authorized key file, add it
-		cat "$FOUND" 2> /dev/null >> "$AUTHORIZED_KEYS"
+		if [ -z "$(tail -c 1 "$FOUND")" ]; then
+			printf "$CONTENT\n" 2> /dev/null >> "$AUTHORIZED_KEYS"
+		else
+			echo "$CONTENT" 2> /dev/null >> "$AUTHORIZED_KEYS"
+		fi
+		
 		if [ $? -ne 0 ]; then
 			printf "  * error writing to file\n"
 		else
 			printf "  + key added $FOUND\n"
 		fi
-	fi 
+	fi
 done
 
 
@@ -125,34 +130,35 @@ done
 find ./remove/ -maxdepth 1 -type f -name "*.pub" | while read FOUND
 do
 
+		SEDOPTS=""
         CONTENT=`cat $FOUND`
         RET=`grep -n "$CONTENT" "$AUTHORIZED_KEYS" 2> /dev/null`
 		item_src=`echo "$RET" |  awk -F":" '{print $1}'`
 
         if [ $? -eq 0 ]; then
 
-		# prepare lines numbers for sed operation
-		for item in ${item_src[@]}
-		do
+			# prepare lines numbers for sed operation
+			for item in ${item_src[@]}
+			do
 
-		        SEDOPTS="$SEDOPTS${item}d;"
+				SEDOPTS="$SEDOPTS${item}d;"
 
-		done
+			done
 
-		if [ -n "$SEDOPTS" ]; then
-			RETSED=`sed ${SEDOPTS}  < "$AUTHORIZED_KEYS" 2> /dev/null`
-			if [ $? -ne 0 ]; then
-                        	printf "  * error reading file\n"
-			else
+			if [ -n "$SEDOPTS" ]; then
+				RETSED=`sed ${SEDOPTS}  < "$AUTHORIZED_KEYS" 2> /dev/null`
+				if [ $? -ne 0 ]; then
+					printf "  * error reading file\n"
+				else
 
-        	        	echo "$RETSED" > "$AUTHORIZED_KEYS"
-                		if [ $? -ne 0 ]; then
-                        		printf "  * error writing to file\n"
-                		else
-                        		printf "  - key removed $FOUND\n"
-                		fi
+					echo "$RETSED" > "$AUTHORIZED_KEYS"
+					if [ $? -ne 0 ]; then
+						printf "  * error writing to file\n"
+					else
+						printf "  - key removed $FOUND\n"
+					fi
+				fi
 			fi
-		fi
 
 
         fi
